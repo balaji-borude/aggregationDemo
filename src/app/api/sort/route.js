@@ -3,33 +3,38 @@ import connect from "@/lib/mongoConnect";
 import Data from "@/lib/models/Data";
 import { NextResponse } from "next/server";
 
-export async function GET(req){
 
-    try {
+export async function GET(req) {
+  try {
+    await connect();
 
-        await connect(); 
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page")) || 1;
+    const limit = parseInt(searchParams.get("limit")) || 5;
 
-        const page = 1;       
-        const limit = 50; // we have to use params to get the page and limit 
+    const result = await Data.aggregate([
+      { $sort: { name: 1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ]);
 
+    const total = await Data.countDocuments();
 
-         const result = await Data.aggregate([
-            { $sort: { name: 1 } },                 
-            { $skip: (page - 1) * limit },
-            { $limit: limit }
-            ]); 
-``
-        return NextResponse.json(
-        { 
-            message: "Data fetched successfully" ,
-            data: result,
-        },
-        { status: 200 });
-
-    } catch (error) {
-        console.log("error while Sorting By Name ",error);
-    }
-
-
+    return NextResponse.json(
+      {
+        message: "Data fetched successfully",
+        data: result,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("API error: ", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
-
