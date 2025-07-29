@@ -18,6 +18,8 @@ export async function GET(req) {
       { $limit: limit },
     ]);
 
+    console.log("Printing the ressponse from the api -->", result);
+    
     const total = await Data.countDocuments();
 
     return NextResponse.json(

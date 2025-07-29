@@ -1,14 +1,16 @@
 
 "use client"
-"use client"
 
 import { useState, useEffect } from "react";
 
 export default function Home() {
   const [sections, setSections] = useState([]);
   const [page, setPage] = useState(1);
-  const limit = 5; // You can make this dynamic too if needed
-  const [totalPages, setTotalPages] = useState(1);
+  const [inputLimit, setInputLimit] = useState(1);
+  const[limit,setLimit] = useState(1);
+
+  //const limit = 5; 
+  const [totalPages, setTotalPages] = useState(4);
 
   useEffect(() => {
     async function fetchData() {
@@ -29,7 +31,17 @@ export default function Home() {
     }
 
     fetchData();
-  }, [page]);
+  }, [page,limit]);
+
+
+  // functio call
+  const limitSubmitter =(e)=>{
+    e.preventDefault();
+    if (inputLimit > 0) {
+      setLimit(inputLimit); 
+      setPage(1);            
+    }
+  }
 
   return (
 
@@ -56,6 +68,24 @@ export default function Home() {
         >
           Next
         </button>
+      </div>
+
+      {/* Enter the limit */}
+      <div className="flex gap-x-5 items-center mb-10 mt-14">
+        <form onSubmit={limitSubmitter}>
+          <label htmlFor="demo">Enter the Limit of page </label>
+          <input
+            id="demo"
+            type="text"
+            value={inputLimit}
+            onChange={(e) => setInputLimit(Number(e.target.value))}
+            className="h-10 w-14 border p-3 "
+
+          />
+
+          <button type="submit" className="border ml-6 px-4 py-2 rounded-2xl"> submit</button>
+
+        </form>
       </div>
 
       <div className="flex flex-wrap">
